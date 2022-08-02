@@ -31,11 +31,11 @@ It has below features:
 
 ### Interactive installation
 
+Since the official default cannot perform tasks in the background, please install screen on the server in advance and enter the screen window and execute the following command. After the execution is completed, suspend the window. Otherwise, if the command window is closed, the program may be interrupted and exited.
+
 ```shell
 curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh
 ```
-
-Since the official default cannot suspend execution, please install **screen** on the server in advance and suspend execution, otherwise if the command window is closed, the program may be interrupted and exited.
 
 Since the official package does not support preset account passwords, please follow the prompts to enter the account email address and account password after running.
 
