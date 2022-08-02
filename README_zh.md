@@ -27,30 +27,33 @@ bitping 是一种允许用户通过共享CPU和带宽来进行ping测试分享�
 
 ### 交互式安装
 
-```shell
-
-```
-
-
-### 一键安装
+由于官方默认无法在后台执行任务，请提前在服务器上安装screen并进入screen窗口执行以下命令。执行完成后，挂起窗口。否则，如果命令窗口关闭，程序可能会被中断并退出。
 
 ```shell
-
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh
 ```
 
-上述命令按照提示更改你的设置
+由于官方包不支持预设账号密码，运行后请按照提示输入账号邮箱和账号密码。 
 
 ## 卸载
 
 ```shell
-
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh -u
 ```
 
 卸载服务
 
 ### 经验
 
+东南亚挂的收益高，但也就那样，**主要看IP段，每个IP段固定收益的，收益按照下面的地域图划分收益，以下是全网每小时的收益**，所以分成其实很少，唯一的优点是国内可挂，收益算全球较高档次那批了。
 
+**僧多粥少，人越多，收益越低**
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/a.png)
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/b.png)
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/c.png)
 
 ### 免责声明
 
