@@ -51,7 +51,7 @@ uninstall service
 
 The income of Southeast Asia is high, but that's it, it mainly depends on the IP segment. If each IP segment has fixed income, the income is divided according to the following geographical map. The following is the hourly income of the whole network, so the division is actually very small.
 
-More monks and less porridge, the more people, the lower the income
+**More monks and less porridge, the more people, the lower the income**
 
 ![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/d.png)
 
