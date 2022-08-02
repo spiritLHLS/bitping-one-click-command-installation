@@ -47,6 +47,19 @@ curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-i
 
 uninstall service
 
+## Experience
+
+The income of Southeast Asia is high, but that's it, it mainly depends on the IP segment. If each IP segment has fixed income, the income is divided according to the following geographical map. The following is the hourly income of the whole network, so the division is actually very small.
+
+More monks and less porridge, the more people, the lower the income
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/d.png)
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/e.png)
+
+![](https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/backup/f.png)
+
+
 ## Disclaimer
 
 This program is for learning purposes only, not for profit, please delete it within 24 hours after downloading, not for any commercial use. The text, data and images are copyrighted, if reproduced, please indicate the source.
