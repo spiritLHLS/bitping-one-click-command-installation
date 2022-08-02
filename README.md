@@ -1,0 +1,1 @@
+# bitping-one-click-command-installation
