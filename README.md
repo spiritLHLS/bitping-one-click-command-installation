@@ -32,22 +32,17 @@ It has below features:
 ### Interactive installation
 
 ```shell
-
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh
 ```
 
+Since the official default cannot suspend execution, please install **screen** on the server in advance and suspend execution, otherwise if the command window is closed, the program may be interrupted and exited.
 
-### One command installation
-
-```shell
-
-```
-
-Change to your token at the end of this command
+Since the official package does not support preset account passwords, please follow the prompts to enter the account email address and account password after running.
 
 ## Uninstall
 
 ```shell
-
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh -u
 ```
 
 uninstall service
