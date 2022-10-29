@@ -72,14 +72,6 @@ container_amd64_build(){
       ${PACKAGE_INSTALL[int]} docker.io
     fi
   fi
-  # 安装 bitping 核心文件
-  ! type -p wget >/dev/null 2>&1 && ${PACKAGE_INSTALL[int]} wget
-  ! type -p unzip >/dev/null 2>&1 && ${PACKAGE_INSTALL[int]} unzip
-  wget -N https://downloads.bitping.com/node/$ARCH.zip
-  unzip -n $ARCH.zip
-  rm -rd bitping $ARCH.zip
-  mv release bitping
-  mv bitping/bitping-node-*-linux bitping/bitping
 
   # 删除旧容器（如有）
   docker ps -a | awk '{print $NF}' | grep -qw "$NAME" && yellow " Remove the old bitping container.\n " && docker rm -f "$NAME" >/dev/null 2>&1
