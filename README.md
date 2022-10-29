@@ -25,7 +25,7 @@ It has below features:
 ## Notes
 
 - Verified on AMD64 and ARM
-- Try it if you are interested via my --> [referrals](https://app.bitping.com/?r=YIwAx_jx) <--, via my link registration will give me more motivation to perfect the installation and use of the program, and this does not affect your earnings.
+- Try it if you are interested via my --> [referrals](https://app.bitping.com?r=2RUmPa_f) <--, via my link registration will give me more motivation to perfect the installation and use of the program, and this does not affect your earnings.
 
 ## Install
 
