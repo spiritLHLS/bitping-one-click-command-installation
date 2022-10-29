@@ -88,6 +88,7 @@ container_amd64_build(){
   # 创建容器
   yellow " Create the bitping container.\n "
   docker pull bitping/bitping-node
+  mkdir $HOME/.bitping/
   docker run -it --mount type=bind,source="$HOME/.bitping/",target=/root/.bitping bitping/bitping-node:latest
   
 
