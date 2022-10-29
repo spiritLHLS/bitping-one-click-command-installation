@@ -55,7 +55,7 @@ check_virt(){
 
 # 确认
 input_status(){
-  [ -z $STATUS ] && reading "Do you have a account and remember the account's emalis with passwords ? \n If you do not have a account, open https://app.bitping.com?r=2RUmPa_f \n(Y/N): " STATUS
+  [ -z $STATUS ] && reading "Do you have a account and remember the account's emalis with passwords ? \nIf you do not have a account, open https://app.bitping.com?r=2RUmPa_f \n(Y/N): " STATUS
 }
 
 container_amd64_build(){
