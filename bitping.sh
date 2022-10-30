@@ -48,64 +48,35 @@ check_virt(){
   ARCHITECTURE=$(uname -m)
   case "$ARCHITECTURE" in
     aarch64 ) ARCH=arm64v8;;
-    x64|x86_64|amd64 ) ARCH=latest;;
+    x64|x86_64 ) ARCH=latest;;
     * ) red " ERROR: Unsupported architecture: $ARCHITECTURE\n" && exit 1;;
   esac
 }
 
-# 确认
-input_status(){
-  [ -z $STATUS ] && reading "Do you have a account and remember the account's emalis with passwords ? \nIf you do not have a account, open https://app.bitping.com?r=2RUmPa_f \n(Y/N): " STATUS
-}
-
-container_amd64_build(){
-  # 宿主机安装 docker
-  green "\n Install docker.\n "
-  if ! systemctl is-active docker >/dev/null 2>&1; then
-    echo -e " \n Install docker \n " 
-    if [ $SYSTEM = "CentOS" ]; then
-      ${PACKAGE_INSTALL[int]} yum-utils
-      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo &&
-      ${PACKAGE_INSTALL[int]} docker-ce docker-ce-cli containerd.io
-      systemctl enable --now docker
-    else
-      ${PACKAGE_INSTALL[int]} docker.io
-    fi
-  fi
-
-  # 删除旧容器（如有）
-  docker ps -a | awk '{print $NF}' | grep -qw "$NAME" && yellow " Remove the old bitping container.\n " && docker rm -f "$NAME" >/dev/null 2>&1
-  rm -rf $HOME/.bitping/
-
-  # 创建容器
-  yellow " Create the bitping container.\n "
-  docker pull bitping/bitping-node
-  mkdir $HOME/.bitping/
-  docker run -it --mount type=bind,source="$HOME/.bitping/",target=/root/.bitping bitping/bitping-node:latest
-  
-
-  # 创建 Towerwatch
-  [[ ! $(docker ps -a) =~ watchtower ]] && yellow " Create TowerWatch.\n " && docker run -d --name watchtower --restart always -p 2095:8080 -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --cleanup >/dev/null 2>&1
+# 输入 bitping 的个人信息
+input_token(){
+  [ -z $EMAIL ] && reading " Enter your Email, if you do not find it, open https://app.bitping.com/?r=2RUmPa_f: " EMAIL 
+  [ -z $PASSWORD ] && reading " Enter your Password: " PASSWORD
 }
 
 # 显示结果
 result(){
-  docker ps -a | grep -q "$NAME" && docker ps -a | grep -q "watchtower" && green " Install success.\n" || red " install fail.\n"
+  green " Finish \n"
 }
 
 # 卸载
 uninstall(){
-  docker rm -f $(docker ps -a | grep -w "$NAME" | awk '{print $1}')
-  docker rmi -f $(docker images | grep bitping/bitping-node | awk '{print $3}')
-  green "\n Uninstall containers and images complete.\n"
+  pkill "$NAME"
+  green "\n Uninstall complete.\n"
   rm -rf $HOME/.bitping/
   exit 0
 }
 
 # 传参
-while getopts "UuT:t:" OPTNAME; do
+while getopts "UuM:m:" OPTNAME; do
   case "$OPTNAME" in
     'U'|'u' ) uninstall;;
+    'M'|'m' ) P2PEMAIL=$OPTARG;;
   esac
 done
 
@@ -114,20 +85,46 @@ check_root
 check_operating_system
 check_ipv4
 check_virt
-input_status
-case "$STATUS" in
-  'N'|'n' ) exit 0;;
+input_token
+ARCHH=$(uname -m)
+case "$ARCHH" in
+x86_64 ) ARCHITECTUREH="amd64";;
+* ) ARCHITECTUREH="i386";;
 esac
-if [ $ARCH = "latest" ]; then
-    container_amd64_build
+if [ $SYSTEM = "CentOS" ]; then
+    yum update
+    yum install -y wget
+    if [ $ARCHITECTUREH = "amd64" ]; then
+        rm -rf *bitping*
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping
+        chmod 777 bitping
+        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+    else
+        rm -rf *bitping*
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping
+        chmod 777 bitping
+        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+    fi
 else
-    ${PACKAGE_INSTALL[int]} install sudo -y
-    ${PACKAGE_INSTALL[int]} install curl -y
-    ${PACKAGE_INSTALL[int]} install wget -y
-    rm -rf $HOME/.bitping/
-    wget https://downloads.bitping.com/node/armv7.zip
-    unzip armv7.zip
-    cd release
-    ./bitping-node-armv7-linux --server
+    apt-get update
+    apt-get install sudo -y
+    apt-get install curl -y
+    apt-get install wget -y
+    if [ $ARCHITECTUREH = "amd64" ]; then
+        rm -rf *bitping*
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping
+        chmod 777 bitping
+        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+    else
+        rm -rf *bitping*
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping
+        chmod 777 bitping
+        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+    fi
+    if [ $? -ne 0 ]; then
+        echo "NOT SUPPORT"
+    else
+        echo ""
+    fi
 fi
 result
