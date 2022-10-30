@@ -27,8 +27,6 @@ bitping 是一种允许用户通过共享CPU和带宽来进行ping测试分享�
 
 ### 交互式安装
 
-由于官方默认无法在后台执行任务，请提前在服务器上安装screen并进入screen窗口执行以下命令。执行完成后，挂起窗口。否则，如果命令窗口关闭，程序可能会被中断并退出。
-
 ```shell
 curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh
 ```
