@@ -66,7 +66,7 @@ result(){
 
 # 卸载
 uninstall(){
-  pkill "$NAME"
+  kill -9 $(pgrep -f bitping)
   green "\n Uninstall complete.\n"
   rm -rf $HOME/.bitping/
   exit 0
