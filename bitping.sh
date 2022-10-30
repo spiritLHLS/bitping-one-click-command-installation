@@ -73,10 +73,11 @@ uninstall(){
 }
 
 # 传参
-while getopts "UuM:m:" OPTNAME; do
+while getopts "UuM:m:P:p:" OPTNAME; do
   case "$OPTNAME" in
     'U'|'u' ) uninstall;;
-    'M'|'m' ) P2PEMAIL=$OPTARG;;
+    'M'|'m' ) EMAIL=$OPTARG;;
+    'P'|'p' ) PASSWORD=$OPTARG;;
   esac
 done
 
