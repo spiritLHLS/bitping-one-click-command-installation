@@ -97,14 +97,14 @@ if [ $SYSTEM = "CentOS" ]; then
     yum install -y wget
     if [ $ARCHITECTUREH = "amd64" ]; then
         rm -rf *bitping*
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping
-        chmod 777 bitping
-        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping-node-amd64-linux
+        chmod 777 bitping-node-amd64-linux
+        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" &
     else
         rm -rf *bitping*
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping-node-armv7-linux
         chmod 777 bitping
-        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" &
     fi
 else
     apt-get update
@@ -113,14 +113,14 @@ else
     apt-get install wget -y
     if [ $ARCHITECTUREH = "amd64" ]; then
         rm -rf *bitping*
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping
-        chmod 777 bitping
-        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping-node-amd64-linux
+        chmod 777 bitping-node-amd64-linux
+        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" &
     else
         rm -rf *bitping*
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping
+        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping-node-armv7-linux
         chmod 777 bitping
-        nohup ./bitping  --server --email "$EMAIL" --password "$PASSWORD" &
+        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" &
     fi
     if [ $? -ne 0 ]; then
         echo "NOT SUPPORT"
