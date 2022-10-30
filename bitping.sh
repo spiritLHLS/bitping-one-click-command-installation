@@ -98,13 +98,15 @@ if [ $SYSTEM = "CentOS" ]; then
     if [ $ARCHITECTUREH = "amd64" ]; then
         rm -rf *bitping*
         yellow "Building"
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping-node-amd64-linux
+        rm -rf bitping-node-amd64-linux
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
         chmod 777 bitping-node-amd64-linux
         ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD"
     else
         rm -rf *bitping*
         yellow "Building"
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping-node-armv7-linux
+        rm -rf bitping-node-armv7-linux
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
         chmod 777 bitping-node-armv7-linux
         ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD"
     fi
@@ -116,13 +118,15 @@ else
     if [ $ARCHITECTUREH = "amd64" ]; then
         rm -rf *bitping*
         yellow "Building"
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux -o bitping-node-amd64-linux
+        rm -rf bitping-node-amd64-linux
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
         chmod 777 bitping-node-amd64-linux
         ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD"
     else
         rm -rf *bitping*
         yellow "Building"
-        curl https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux -o bitping-node-armv7-linux
+        rm -rf bitping-node-armv7-linux
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
         chmod 777 bitping-node-armv7-linux
         ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD"
     fi
