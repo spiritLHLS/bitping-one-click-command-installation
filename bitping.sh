@@ -131,7 +131,7 @@ else
         nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" &
     fi
     if [ $? -ne 0 ]; then
-        echo "NOT SUPPORT"
+        red "NOT SUPPORT"
     else
         echo ""
     fi
