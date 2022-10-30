@@ -39,10 +39,19 @@ curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-i
 
 Since the official package does not support preset account passwords, please follow the prompts to enter the account email address and account password after running.
 
+### One command installation
+
+```shell
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash bitping.sh -m youremail -p yourpassword
+```
+
+Change to your the email and password of this command
+
+
 ## Uninstall
 
 ```shell
-curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash bitping.sh -u
+bash bitping.sh -u
 ```
 
 uninstall service
