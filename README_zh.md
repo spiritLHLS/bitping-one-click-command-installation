@@ -33,7 +33,15 @@ bitping 是一种允许用户通过共享CPU和带宽来进行ping测试分享�
 curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh
 ```
 
-由于官方包不支持预设账号密码，运行后请按照提示输入账号邮箱和账号密码。 
+注册链接注册后，记住邮箱和密码，运行这个脚本，粘贴邮箱和密码，回车开始安装。
+
+### 一键安装
+
+```shell
+curl -L https://raw.githubusercontent.com/spiritLHLS/bitping-one-click-command-installation/main/bitping.sh -o bitping.sh && chmod +x bitping.sh && bash ./bitping.sh -m youremail -p yourpassword
+```
+
+在此命令的中更改为你的账号邮箱和密码即可
 
 ## 卸载
 
