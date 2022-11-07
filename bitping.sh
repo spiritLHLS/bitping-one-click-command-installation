@@ -102,14 +102,14 @@ if [ $SYSTEM = "CentOS" ]; then
         rm -rf bitping-node-amd64-linux*
         wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
         chmod 777 bitping-node-amd64-linux
-        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" & >/dev/null 2>&1
+        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
     else
         rm -rf *bitping*
         yellow "Building"
         rm -rf bitping-node-armv7-linux*
         wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
         chmod 777 bitping-node-armv7-linux
-        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" & >/dev/null 2>&1
+        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
     fi
 else
     apt-get update
@@ -122,14 +122,14 @@ else
         rm -rf bitping-node-amd64-linux*
         wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
         chmod 777 bitping-node-amd64-linux
-        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" & >/dev/null 2>&1
+        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
     else
         rm -rf *bitping*
         yellow "Building"
         rm -rf bitping-node-armv7-linux*
         wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
         chmod 777 bitping-node-armv7-linux
-        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" & >/dev/null 2>&1
+        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
     fi
     if [ $? -ne 0 ]; then
         red "NOT SUPPORT"
