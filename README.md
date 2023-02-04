@@ -26,6 +26,7 @@ It has below features:
 
 - Verified on AMD64 and ARM
 - Try it if you are interested via my --> [referrals](https://app.bitping.com?r=2RUmPa_f) <--, via my link registration will give me more motivation to perfect the installation and use of the program, and this does not affect your earnings.
+- **Many merchants' servers forbid this kind of pinging, so weigh up this project yourself, the benefits are low and the risks are high!**
 
 ## Install
 
