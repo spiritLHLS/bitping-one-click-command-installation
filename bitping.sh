@@ -60,6 +60,32 @@ input_token(){
   [ -z $PASSWORD ] && reading " Enter your Password: " PASSWORD
 }
 
+install_bitping() {
+    kill -9 $(pgrep -f bitping)
+    PIDS_LIST=$(ps -ef | grep bitping | awk '{print $2}')
+    for PID in $PID_LIST
+    do
+      if [ $PID != $$ ]; then
+        kill $PID > /dev/null 2>&1
+      fi
+    done
+    if [ $ARCHITECTUREH = "amd64" ]; then
+        rm -rf *bitping*
+        yellow "Building"
+        rm -rf bitping-node-amd64-linux*
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
+        chmod 777 bitping-node-amd64-linux
+        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+    else
+        rm -rf *bitping*
+        yellow "Building"
+        rm -rf bitping-node-armv7-linux*
+        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
+        chmod 777 bitping-node-armv7-linux
+        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+    fi
+}
+
 # 显示结果
 result(){
   green " Finish \n"
@@ -68,8 +94,20 @@ result(){
 # 卸载
 uninstall(){
   kill -9 $(pgrep -f bitping)
-  green "\n Uninstall complete.\n"
+  PIDS_LIST=$(ps -ef | grep bitping | awk '{print $2}')
+  for PID in $PID_LIST
+  do
+    if [ $PID != $$ ]; then
+      kill $PID > /dev/null 2>&1
+    fi
+  done
   rm -rf $HOME/.bitping/
+  FILE_LIST=$(find / -name "*bitping*")
+  for FILE in $FILE_LIST
+  do
+    rm -f $FILE > /dev/null 2>&1
+  done
+  green "\n Uninstall complete.\n"
   exit 0
 }
 
@@ -96,41 +134,18 @@ esac
 if [ $SYSTEM = "CentOS" ]; then
     yum update
     yum install -y wget
-    if [ $ARCHITECTUREH = "amd64" ]; then
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-amd64-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
-        chmod 777 bitping-node-amd64-linux
-        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+    install_bitping
+    if [ $? -ne 0 ]; then
+        red "NOT SUPPORT"
     else
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-armv7-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
-        chmod 777 bitping-node-armv7-linux
-        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+        echo ""
     fi
 else
     apt-get update
     apt-get install sudo -y
     apt-get install curl -y
     apt-get install wget -y
-    if [ $ARCHITECTUREH = "amd64" ]; then
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-amd64-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
-        chmod 777 bitping-node-amd64-linux
-        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
-    else
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-armv7-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
-        chmod 777 bitping-node-armv7-linux
-        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
-    fi
+    install_bitping
     if [ $? -ne 0 ]; then
         red "NOT SUPPORT"
     else
