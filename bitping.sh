@@ -61,14 +61,6 @@ input_token(){
 }
 
 install_bitping() {
-    kill -9 $(pgrep -f bitping)
-    PIDS_LIST=$(ps -ef | grep bitping | awk '{print $2}')
-    for PID in $PID_LIST
-    do
-      if [ $PID != $$ ]; then
-        kill $PID > /dev/null 2>&1
-      fi
-    done
     if [ $ARCHITECTUREH = "amd64" ]; then
         rm -rf *bitping*
         yellow "Building"
