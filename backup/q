@@ -1,1 +1,252 @@
+#!/bin/bash
+#FROM https://github.com/spiritLHLS/bitping-one-click-command-installation
 
+utf8_locale=$(locale -a 2>/dev/null | grep -i -m 1 -E "UTF-8|utf8")
+if [[ -z "$utf8_locale" ]]; then
+  echo "No UTF-8 locale found"
+else
+  export LC_ALL="$utf8_locale"
+  export LANG="$utf8_locale"
+  export LANGUAGE="$utf8_locale"
+  echo "Locale set to $utf8_locale"
+fi
+
+# 定义容器名
+NAME='bitping'
+
+# 自定义字体彩色，read 函数，安装依赖函数
+red(){ echo -e "\033[31m\033[01m$1$2\033[0m"; }
+green(){ echo -e "\033[32m\033[01m$1$2\033[0m"; }
+yellow(){ echo -e "\033[33m\033[01m$1$2\033[0m"; }
+reading(){ read -rp "$(green "$1")" "$2"; }
+
+# 必须以root运行脚本
+check_root(){
+  [[ $(id -u) != 0 ]] && red " The script must be run as root, you can enter sudo -i and then download and run again." && exit 1
+}
+
+# 判断系统，并选择相应的指令集
+check_operating_system(){
+  CMD=("$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
+       "$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+       "$(lsb_release -sd 2>/dev/null)" "$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+       "$(grep . /etc/redhat-release 2>/dev/null)"
+       "$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+      )
+
+  for i in "${CMD[@]}"; do SYS="$i" && [[ -n $SYS ]] && break; done
+
+  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|amazon linux|alma|rocky")
+  RELEASE=("Debian" "Ubuntu" "CentOS")
+  PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update")
+  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install")
+  PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove")
+
+  for ((int = 0; int < ${#REGEX[@]}; int++)); do
+    [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && break
+  done
+
+  [[ -z $SYSTEM ]] && red " ERROR: The script supports Debian, Ubuntu, CentOS or Alpine systems only.\n" && exit 1
+}
+
+# 判断宿主机的 IPv4 或双栈情况
+check_ipv4(){
+  # 遍历本机可以使用的 IP API 服务商
+  # 定义可能的 IP API 服务商
+  API_NET=("ip.sb" "ipget.net" "ip.ping0.cc" "https://ip4.seeip.org" "https://api.my-ip.io/ip" "https://ipv4.icanhazip.com" "api.ipify.org" "ifconfig.co")
+
+  # 遍历每个 API 服务商，并检查它是否可用
+  for p in "${API_NET[@]}"; do
+    # 使用 curl 请求每个 API 服务商
+    response=$(curl -s4m8 "$p")
+    sleep 1
+    # 检查请求是否失败，或者回传内容中是否包含 error
+    if [ $? -eq 0 ] && ! echo "$response" | grep -q "error"; then
+      # 如果请求成功且不包含 error，则设置 IP_API 并退出循环
+      IP_API="$p"
+      break
+    fi
+  done
+
+  # 判断宿主机的 IPv4 、IPv6 和双栈情况
+  ! curl -s4m8 $IP_API | grep -q '\.' && red " ERROR：The host must have IPv4. " && exit 1
+}
+
+# 输入 bitping 的个人信息
+input_token(){
+  [ -z $EMAIL ] && reading " Enter your Email, if you do not find it, open https://app.bitping.com/?r=2RUmPa_f: " EMAIL 
+  [ -z $PASSWORD ] && reading " Enter your Password: " PASSWORD
+}
+
+install_bitping() {
+    base_url="https://releases.bitping.com/$tag"
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    update_json=$(curl --silent "https://releases.bitping.com/bitpingd/update.json")
+    tag=$(echo "$update_json" | grep '"version":' | sed -E 's/.*"([^"]+)".*/\1/')
+    if [[ "$OS" == "Linux" ]]; then
+        if [[ "$ARCH" == "x86_64" ]]; then
+            file="bitpingd-x86_64-unknown-linux-gnu-$tag.tar.gz"
+        elif [[ "$ARCH" == "armv7l" ]]; then
+            file="bitpingd-armv7-unknown-linux-gnueabihf-$tag.tar.gz"
+        elif [[ "$ARCH" == "aarch64" ]]; then
+            file="bitpingd-aarch64-unknown-linux-musl-$tag.tar.gz"
+        else
+            echo "Unsupported architecture"
+            exit 1
+        fi
+    elif [[ "$OS" == "Darwin" ]]; then
+        if [[ "$ARCH" == "x86_64" ]]; then
+            file="bitpingd-x86_64-apple-darwin-$tag.tar.gz"
+        elif [[ "$ARCH" == "arm64" ]]; then
+            file="bitpingd-aarch64-apple-darwin-$tag.tar.gz"
+        else
+            echo "Unsupported architecture"
+            exit 1
+        fi
+    else
+        echo "Unsupported operating system"
+        exit 1
+    fi
+    # Download the file
+    curl -L "$base_url/$file" -o $file
+    # Extract the tar file
+    tar -xf "$file"
+    rm -rf "$file"
+    modified_profile=0  # Flag to track profile modification
+    # Determine where to install the executable
+    if [[ ":$PATH:" == *":$HOME/.local/bin:"* ]]; then
+        target_dir="$HOME/.local/bin"
+        mkdir -p "$target_dir"
+    elif [[ ":$PATH:" == *":$HOME/bin:"* ]]; then
+        target_dir="$HOME/bin"
+        mkdir -p "$target_dir"
+    else
+        echo "Neither ~/.local/bin nor ~/bin is in your PATH"
+        echo "Adding to all shell profiles we can detect..."
+        # Modify the PATH in various shell profiles if they exist
+        # For Bash
+        if [[ -f "$HOME/.bashrc" && ! $(grep -q 'export PATH="$PATH:$HOME/.local/bin"' "$HOME/.bashrc") ]]; then
+            echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.bashrc"
+            source "$HOME/.bashrc"
+            echo "Added $HOME/.local/bin to .bashrc"
+            modified_profile=1
+        fi
+    
+        # For Zsh
+        if [[ -f "$HOME/.zshrc" && ! $(grep -q 'export PATH="$PATH:$HOME/.local/bin"' "$HOME/.zshrc") ]]; then
+            echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.zshrc"
+            source "$HOME/.zshrc"
+            echo "Added $HOME/.local/bin to .zshrc."
+            modified_profile=1
+        fi
+    
+        # For sh
+        if [[ -f "$HOME/.profile" && ! $(grep -q 'export PATH="$PATH:$HOME/.local/bin"' "$HOME/.profile") ]]; then
+            echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.profile"
+            echo "Added $HOME/.local/bin to .profile"
+            source "$HOME/.profile"
+            modified_profile=1
+        fi
+    
+        # For Fish
+        if [[ -f "$HOME/.config/fish/config.fish" && ! $(grep -q 'set -gx PATH $PATH $HOME/.local/bin' "$HOME/.config/fish/config.fish") ]]; then
+            echo 'set -gx PATH $PATH $HOME/.local/bin' >> "$HOME/.config/fish/config.fish"
+            echo "Added $HOME/.local/bin to config.fish"
+            modified_profile=1
+        fi
+    
+        # Now, check if ~/.local/bin is in the PATH
+        if [[ ":$PATH:" == *":$HOME/.local/bin:"* ]]; then
+            target_dir="$HOME/.local/bin"
+            mkdir -p "$target_dir"
+        else
+            echo "Failed to add ~/.local/bin to the PATH"
+            exit 1
+        fi
+    fi
+    # Move the executable
+    mv bitpingd "$target_dir/bitpingd"
+    # Change permissions
+    chmod +x "$target_dir/bitpingd"
+    # Set capabilities (Linux only)
+    if [[ "$OS" == "Linux" ]]; then
+        sudo setcap 'cap_net_raw=ep' "$target_dir/bitpingd"
+    fi
+    echo "Successfully installed Bitpingd at $(which bitpingd)\n"
+    if [[ $modified_profile -eq 1 ]]; then
+        echo "======================================================"
+        echo "NOTICE: We made changes to your shell profile."
+        echo "To apply these changes in your current shell, you might need to run:"
+        echo "    source ~/.bashrc    # For Bash users"
+        echo "    source ~/.zshrc     # For Zsh users"
+        echo "    source ~/.profile   # For Sh users"
+        echo "    exec fish           # For Fish users (restarts the shell)"
+        echo "If unsure, simply close and reopen your terminal."
+        echo "======================================================"
+    fi
+}
+
+# 显示结果
+result(){
+  green " Finish \n"
+}
+
+# 卸载
+uninstall(){
+  kill -9 $(pgrep -f bitping)
+  PIDS_LIST=$(ps -ef | grep bitping | awk '{print $2}')
+  for PID in $PID_LIST
+  do
+    if [ $PID != $$ ]; then
+      kill $PID > /dev/null 2>&1
+    fi
+  done
+  rm -rf $HOME/.bitping/
+  FILE_LIST=$(find / -name "*bitping*")
+  for FILE in $FILE_LIST
+  do
+    rm -f $FILE > /dev/null 2>&1
+  done
+  green "\n Uninstall complete.\n"
+  exit 0
+}
+
+# 传参
+while getopts "UuM:m:P:p:" OPTNAME; do
+  case "$OPTNAME" in
+    'U'|'u' ) uninstall;;
+    'M'|'m' ) EMAIL=$OPTARG;;
+    'P'|'p' ) PASSWORD=$OPTARG;;
+  esac
+done
+
+# 主程序
+check_root
+check_operating_system
+check_ipv4
+input_token
+if [ $SYSTEM = "CentOS" ]; then
+    yum update
+    yum install -y sudo
+    yum install -y curl
+    yum install -y tar
+    install_bitping
+    if [ $? -ne 0 ]; then
+        red "NOT SUPPORT"
+    else
+        echo ""
+    fi
+else
+    apt-get update
+    apt-get install sudo -y
+    apt-get install curl -y
+    apt-get install tar -y
+    install_bitping
+    if [ $? -ne 0 ]; then
+        red "NOT SUPPORT"
+    else
+        echo ""
+    fi
+fi
+result
