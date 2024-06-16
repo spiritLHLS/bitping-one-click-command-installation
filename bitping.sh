@@ -113,7 +113,8 @@ container_build(){
   sleep 1
   docker logs bitping_login
   docker run -d --name "$NAME" --restart=unless-stopped --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd bitping/bitpingd:latest
-  docker rm -f bitping_login
+  sleep 5
+  docker rm bitping_login
   
   # 创建 Towerwatch
   [[ ! $(docker ps -a) =~ watchtower ]] && yellow " Create TowerWatch.\n " && docker run -d --name watchtower --restart always -p 2095:8080 -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --cleanup >/dev/null 2>&1
