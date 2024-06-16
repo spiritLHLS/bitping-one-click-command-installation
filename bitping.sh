@@ -1,5 +1,6 @@
 #!/bin/bash
 #FROM https://github.com/spiritLHLS/bitping-one-click-command-installation
+#2024.06.16
 
 utf8_locale=$(locale -a 2>/dev/null | grep -i -m 1 -E "UTF-8|utf8")
 if [[ -z "$utf8_locale" ]]; then
@@ -49,11 +50,11 @@ check_operating_system(){
   [[ -z $SYSTEM ]] && red " ERROR: The script supports Debian, Ubuntu, CentOS or Alpine systems only.\n" && exit 1
 }
 
-# 判断宿主机的 IPv4 或双栈情况
+# 判断宿主机的 IPv4 或双栈情况 没有拉取不了 docker
 check_ipv4(){
   # 遍历本机可以使用的 IP API 服务商
   # 定义可能的 IP API 服务商
-  API_NET=("ip.sb" "ipget.net" "ip.ping0.cc" "https://ip4.seeip.org" "https://api.my-ip.io/ip" "https://ipv4.icanhazip.com" "api.ipify.org" "ifconfig.co")
+  API_NET=("ip.sb" "ipget.net" "ip.ping0.cc" "https://ip4.seeip.org" "https://api.my-ip.io/ip" "https://ipv4.icanhazip.com" "api.ipify.org")
 
   # 遍历每个 API 服务商，并检查它是否可用
   for p in "${API_NET[@]}"; do
@@ -76,58 +77,55 @@ check_ipv4(){
 check_virt(){
   ARCHITECTURE=$(uname -m)
   case "$ARCHITECTURE" in
-    aarch64 ) ARCH=arm64v8;;
-    x64|x86_64 ) ARCH=latest;;
+    aarch64 ) ARCH=arm64;;
+    x64|x86_64|amd64 ) ARCH=amd64;;
     * ) red " ERROR: Unsupported architecture: $ARCHITECTURE\n" && exit 1;;
   esac
 }
 
 # 输入 bitping 的个人信息
 input_token(){
-  [ -z $EMAIL ] && reading " Enter your Email, if you do not find it, open https://app.bitping.com/?r=2RUmPa_f: " EMAIL 
-  [ -z $PASSWORD ] && reading " Enter your Password: " PASSWORD
+  [ -z $EMAIL ] && reading " Enter your Email, if you do not find it, open https://app.bitping.com/?r=2RUmPa_f : " EMAIL 
+  [ -z $PASSWORD ] && reading " Enter your API KEY: " PASSWORD
 }
 
-install_bitping() {
-    if [ $ARCHITECTUREH = "amd64" ]; then
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-amd64-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-amd64-linux
-        chmod 777 bitping-node-amd64-linux
-        nohup ./bitping-node-amd64-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+container_build(){
+  # 宿主机安装 docker
+  green "\n Install docker.\n "
+  if ! systemctl is-active docker >/dev/null 2>&1; then
+    echo -e " \n Install docker \n " 
+    if [ $SYSTEM = "CentOS" ]; then
+      ${PACKAGE_INSTALL[int]} yum-utils
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo &&
+      ${PACKAGE_INSTALL[int]} docker-ce docker-ce-cli containerd.io
+      systemctl enable --now docker
     else
-        rm -rf *bitping*
-        yellow "Building"
-        rm -rf bitping-node-armv7-linux*
-        wget https://github.com/spiritLHLS/bitping-one-click-command-installation/raw/main/bitping-node-armv7-linux
-        chmod 777 bitping-node-armv7-linux
-        nohup ./bitping-node-armv7-linux --server --email "$EMAIL" --password "$PASSWORD" >/dev/null 2>&1 & 
+      ${PACKAGE_INSTALL[int]} docker.io
     fi
+  fi
+
+  # 删除旧容器（如有）
+  docker ps -a | awk '{print $NF}' | grep -qw "$NAME" && yellow " Remove the old bitping container.\n " && docker rm -f "$NAME" 
+
+  # 创建容器
+  yellow " Create the bitping container.\n "
+  docker run -it --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd --entrypoint /app/bitpingd bitping/bitpingd:latest login --email "$EMAIL" --password "$PASSWORD"
+  docker run -it --name "$NAME" --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd bitping/bitpingd:latest
+  
+  # 创建 Towerwatch
+  [[ ! $(docker ps -a) =~ watchtower ]] && yellow " Create TowerWatch.\n " && docker run -d --name watchtower --restart always -p 2095:8080 -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --cleanup >/dev/null 2>&1
 }
 
 # 显示结果
 result(){
-  green " Finish \n"
+  docker ps -a | grep -q "$NAME" && green " Install success.\n" || red " install fail.\n"
 }
 
 # 卸载
 uninstall(){
-  kill -9 $(pgrep -f bitping)
-  PIDS_LIST=$(ps -ef | grep bitping | awk '{print $2}')
-  for PID in $PID_LIST
-  do
-    if [ $PID != $$ ]; then
-      kill $PID > /dev/null 2>&1
-    fi
-  done
-  rm -rf $HOME/.bitping/
-  FILE_LIST=$(find / -name "*bitping*")
-  for FILE in $FILE_LIST
-  do
-    rm -f $FILE > /dev/null 2>&1
-  done
-  green "\n Uninstall complete.\n"
+  docker rm -f $(docker ps -a | grep -w "$NAME" | awk '{print $1}')
+  docker rmi -f $(docker images | grep bitping/bitpingd:latest | awk '{print $3}')
+  green "\n Uninstall containers and images complete.\n"
   exit 0
 }
 
@@ -146,30 +144,5 @@ check_operating_system
 check_ipv4
 check_virt
 input_token
-ARCHH=$(uname -m)
-case "$ARCHH" in
-x86_64 ) ARCHITECTUREH="amd64";;
-* ) ARCHITECTUREH="i386";;
-esac
-if [ $SYSTEM = "CentOS" ]; then
-    yum update
-    yum install -y wget
-    install_bitping
-    if [ $? -ne 0 ]; then
-        red "NOT SUPPORT"
-    else
-        echo ""
-    fi
-else
-    apt-get update
-    apt-get install sudo -y
-    apt-get install curl -y
-    apt-get install wget -y
-    install_bitping
-    if [ $? -ne 0 ]; then
-        red "NOT SUPPORT"
-    else
-        echo ""
-    fi
-fi
+container_build
 result
