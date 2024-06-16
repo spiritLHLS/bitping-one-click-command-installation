@@ -109,8 +109,8 @@ container_build(){
 
   # 创建容器
   yellow " Create the bitping container.\n "
-  docker run -it --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd --entrypoint /app/bitpingd bitping/bitpingd:latest login --email "$EMAIL" --password "$PASSWORD"
-  docker run -it --name "$NAME" --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd bitping/bitpingd:latest
+  docker run -d --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd --entrypoint /app/bitpingd bitping/bitpingd:latest login --email "$EMAIL" --password "$PASSWORD"
+  docker run -d --name "$NAME" --mount type=volume,source="bitpingd-volume",target=/root/.bitpingd bitping/bitpingd:latest
   
   # 创建 Towerwatch
   [[ ! $(docker ps -a) =~ watchtower ]] && yellow " Create TowerWatch.\n " && docker run -d --name watchtower --restart always -p 2095:8080 -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --cleanup >/dev/null 2>&1
